@@ -30,9 +30,20 @@ add_action('admin_menu', 'register_places_wp_menu_page');
 
 //  add the share location script to head section
 add_action('wp_head', 'LocationHandler::addGeoLocationMetaTag');
-add_action('wp_head', 'LocationHandler::addShareLocationScript');
+add_action('wp_print_scripts', 'LocationHandler::addShareLocationScript');
 
+//  add savelocationinfo action hook
+add_action('wp_ajax_saveLocationInfo', 'LocationHandler::saveLocationInfo');
+add_action('wp_ajax_nopriv_saveLocationInfo', 'LocationHandler::saveLocationInfo'); // need this to serve non logged in users
 
+//  add_action('init', 'place_register');
+/*register_taxonomy('Place Types', array(
+  'place'
+), array(
+  'hierarchical'    => true,
+  'label'           =>  "Place Types",
+  'singular_label'  =>  "Place Type"
+));*/
 
 //  register shortcode resolve to the target HTML
 //  add_shortcode('trivian_widget', 'trivian_widget_show');
