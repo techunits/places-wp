@@ -5,15 +5,17 @@ class LocationHandler {
   //  save location info to session and database for further processing
   public static function saveLocationInfo() {
     global $wpdb;
-    SessionHandler::Init();
-    SessionHandler::Set('location', array(
-      'latitude'  =>  $_GET['data']['latitude'], 
-      'longitude' =>  $_GET['data']['longitude']
-    ));
-    
-    //  save data to table
-    $table_name = $wpdb->prefix . "geoIpLocation";
-    $wpdb->query("INSERT INTO $table_name (ip, location) VALUES ('{$_SERVER['REMOTE_ADDR']}', GeomFromText('POINT({$_GET['data']['latitude']} {$_GET['data']['longitude']})'))");
+    if(!empty($_SERVER['REMOTE_ADDR']) && '127.0.0.1' != $_SERVER['REMOTE_ADDR']) {
+      SessionHandler::Init();
+      SessionHandler::Set('location', array(
+        'latitude'  =>  $_GET['data']['latitude'], 
+        'longitude' =>  $_GET['data']['longitude']
+      ));
+      
+      //  save data to table
+      $table_name = $wpdb->prefix . "geoIpLocation";
+      $wpdb->query("INSERT INTO $table_name (ip, location) VALUES ('{$_SERVER['REMOTE_ADDR']}', GeomFromText('POINT({$_GET['data']['latitude']} {$_GET['data']['longitude']})'))");
+    }
     
     exit('SUCCEED');
   }
@@ -33,11 +35,12 @@ class LocationHandler {
     wp_enqueue_script('jquery');
     
     SessionHandler::Init();
-
+    
     $html = '';
     if(false !== ($locationInfo = SessionHandler::Get('location'))) {
       $html .=  '<script type="text/javascript">
                   var geolocationObj = new Object;
+                  geolocationObj.random = '.rand().';
                   geolocationObj.latitude = '.$locationInfo['latitude'].';
                   geolocationObj.longitude = '.$locationInfo['longitude'].';
                 </script>';
@@ -61,19 +64,17 @@ class LocationHandler {
                 },
                 function(response) {
                   console.log(response);
-		              alert("Got this from the server: " + response);
+		              //  alert("Got this from the server: " + response);
 	              });
               }
               
               if(navigator.geolocation) {
-                if(null == geolocationObj.latitude || null == geolocationObj.longitude) {
-                  navigator.geolocation.getCurrentPosition(setCurrentGeoLocation, handleGeoLocationError, { 
-                      enableHighAccuracy: true, 
-                      timeout: 10 * 1000 * 1000, 
-                      maximumAge: 0 
-                    }
-                  );
-                }
+                navigator.geolocation.getCurrentPosition(setCurrentGeoLocation, handleGeoLocationError, { 
+                    enableHighAccuracy: true, 
+                    timeout: 10 * 1000 * 1000, 
+                    maximumAge: 86400
+                  }
+                );
               }
             </script>';
             

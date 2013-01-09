@@ -28,3 +28,4 @@ app integrated to geo-location system.
 = 1.0.1 =
 * HTML 5 based share location.
 * Geolocation meta tags, for better geo-tagging.
+* Tested with WP Super Cache plugin.
